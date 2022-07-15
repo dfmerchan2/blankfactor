@@ -1,0 +1,59 @@
+group 'co.com.blankfactor'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath('net.serenity-bdd:serenity-gradle-plugin:2.5.8')
+        classpath('net.serenity-bdd:serenity-single-page-report:2.5.8')
+        classpath('gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.8')
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'net.serenity-bdd.aggregator'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+ext {
+    serenityVersion = '3.2.5'
+    serenityCucumberVersion = '3.2.5'
+}
+
+serenity {
+    reports = ["single-page-html"]
+}
+
+dependencies {
+    implementation "net.serenity-bdd:serenity-core:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-junit:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-screenplay:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-cucumber:$rootProject.ext.serenityCucumberVersion"
+    implementation "net.serenity-bdd:serenity-screenplay-webdriver:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-ensure:$rootProject.ext.serenityVersion"
+    implementation "net.serenity-bdd:serenity-reports:$rootProject.ext.serenityVersion"
+    implementation 'com.github.javafaker:javafaker:1.0.2'
+}
+
+gradle.startParameter.continueOnFailure = true
+test.finalizedBy(aggregate)
+
+tasks.withType(Test) {
+    systemProperties = System.properties
+    maxParallelForks = Runtime.runtime.availableProcessors()
+}
